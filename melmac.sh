@@ -23,7 +23,6 @@ echo "
      .;.:;,...';,':,.     ......      .,..,,,,..,,,,,,.         ......... .,,,,.
 
  " 
-
 echo "Iniciando la limpieza y mantenimiento de Melmac..."
 
 # Actualizar la lista de paquetes disponibles
@@ -57,5 +56,25 @@ fi
 echo "Limpiando la caché DNS..."
 sudo systemd-resolve --flush-caches
 
-echo "¡Mantenimiento y limpieza completados!"
+# Opción para full-upgrade
+read -p "¿Quieres realizar una actualización completa del sistema? (puede tener cambios significativos) [s/N] " respuesta
+if [[ $respuesta == "s" || $respuesta == "S" ]]; then
+    sudo apt full-upgrade -y
+fi
 
+# Identificar y desinstalar aplicaciones no deseadas
+echo "Buscando aplicaciones instaladas..."
+paquetes=$(dpkg --get-selections | grep -v deinstall | awk '{print $1}')
+
+seleccion=$(whiptail --title "Aplicaciones instaladas" --checklist \
+"Selecciona las aplicaciones que deseas desinstalar" 25 80 16 \
+$(for paquete in $paquetes; do echo "$paquete OFF"; done) 3>&1 1>&2 2>&3)
+
+exitstatus=$?
+if [ $exitstatus = 0 ]; then
+    for paquete in $seleccion; do
+        sudo apt purge "$paquete" -y
+    done
+fi
+
+echo "¡Mantenimiento y limpieza completados!"
