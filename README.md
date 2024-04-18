@@ -52,7 +52,7 @@
 Simplemente ejecuta el script con:
 
 ```bash
-./melmac_maintenance.sh
+./melmac.sh
 ```
 
 Y sigue las instrucciones en pantalla.
